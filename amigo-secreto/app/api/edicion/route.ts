@@ -1,5 +1,6 @@
 import { pool, tx } from "@/lib/db";
 import { sortear } from "@/lib/sorteo";
+import { sesion } from "@/lib/sesion";
 
 const norm = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -48,16 +49,20 @@ export async function POST(req: Request) {
     return Response.json({ error: "hacen falta al menos 3 personas" }, { status: 400 });
   }
 
+  const ownerId = await sesion();
+  if (!ownerId) return Response.json({ error: "sin_sesion" }, { status: 401 });
+
   try {
     const r = await tx(async (c) => {
-      /* --- grupo (se crea si no existe, con el primer usuario como dueño) --- */
-      let g = await c.query(`select id from grupo where nombre = $1`, [b.grupo]);
+      /* --- grupo: del organizador con sesión, no del primero que aparezca --- */
+      let g = await c.query(
+        `select id from grupo where owner_id = $1 and lower(nombre) = lower($2)`,
+        [ownerId, b.grupo],
+      );
       if (g.rowCount === 0) {
-        const u = await c.query(`select id from app_user order by creado limit 1`);
-        if (u.rowCount === 0) throw new Error("no hay ningún organizador en app_user");
         g = await c.query(
           `insert into grupo (owner_id, nombre) values ($1,$2) returning id`,
-          [u.rows[0].id, b.grupo],
+          [ownerId, b.grupo],
         );
       }
       const grupoId = g.rows[0].id;
