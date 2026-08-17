@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amigo secreto · Familia Corella Murillo</title>
+<meta name="theme-color" content="#0B2620">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{
+  --noche:#0B2620; --pino:#16382F; --musgo:#7FA08E;
+  --papel:#F2ECDD; --vela:#E8B84B; --brasa:#C0533A; --hoja:#4E8C6A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--noche);color:var(--papel);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;
+}
+.halo{position:fixed;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:0}
+.halo.a{width:60vw;height:60vw;top:-18vw;left:-14vw;background:var(--hoja);opacity:.45;animation:deriva 22s ease-in-out infinite}
+.halo.b{width:52vw;height:52vw;top:8vh;right:-20vw;background:var(--brasa);opacity:.24;animation:deriva 27s ease-in-out infinite reverse}
+.halo.c{width:44vw;height:44vw;bottom:-14vw;left:22vw;background:var(--vela);opacity:.2;animation:deriva 31s ease-in-out infinite}
+@keyframes deriva{0%,100%{transform:translate(0,0)}50%{transform:translate(6vw,4vh)}}
+.hilo{position:fixed;top:0;left:0;right:0;height:34px;display:flex;justify-content:space-around;pointer-events:none;z-index:1}
+.hilo i{width:5px;height:5px;border-radius:50%;background:var(--vela);margin-top:9px;opacity:.35;animation:titilar 3.4s ease-in-out infinite}
+@keyframes titilar{0%,100%{opacity:.2;box-shadow:none}50%{opacity:.95;box-shadow:0 0 9px 2px rgba(232,184,75,.55)}}
+
+/* ---------- pantallas ---------- */
+.pantalla{
+  position:relative;z-index:2;min-height:100dvh;display:none;
+  flex-direction:column;padding:min(8vh,68px) 22px 40px;
+  max-width:30rem;margin:0 auto;
+}
+.pantalla.on{display:flex;animation:entra .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes entra{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.grupo{font-family:"IBM Plex Mono",monospace;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--vela);margin:0 0 10px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:-.025em;font-size:clamp(2.3rem,10.5vw,3rem);line-height:1.03;margin:0 0 12px}
+.lede{color:var(--musgo);font-size:1.05rem;margin:0 0 26px;line-height:1.55}
+
+/* ---------- lista de nombres ---------- */
+.nombres{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.nombres button{
+  width:100%;text-align:left;font:inherit;font-size:1.22rem;font-weight:500;
+  font-family:Fraunces,Georgia,serif;letter-spacing:-.01em;
+  padding:15px 17px;border-radius:12px;cursor:pointer;color:var(--papel);
+  background:rgba(242,236,221,.06);border:1px solid rgba(242,236,221,.14);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.nombres button:hover{background:rgba(232,184,75,.12);border-color:rgba(232,184,75,.5)}
+.nombres button:active{transform:scale(.99)}
+.nombres button:focus-visible{outline:2px solid var(--vela);outline-offset:2px}
+.nombres button[disabled]{
+  cursor:default;opacity:.42;background:transparent;
+  border-style:dashed;border-color:rgba(242,236,221,.16);
+}
+.nombres button[disabled]:hover{background:transparent;border-color:rgba(242,236,221,.16)}
+.nombres button.tomado{
+  border-style:dashed;border-color:rgba(242,236,221,.2);
+  background:transparent;color:var(--musgo);
+}
+.nombres button.tomado:hover{background:rgba(242,236,221,.05);border-color:rgba(242,236,221,.3)}
+.marca-tomado{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--musgo);flex:0 0 auto}
+
+/* carta ya guardada */
+.carta-fija{
+  position:relative;background:linear-gradient(168deg,#F8F3E7,#E3D7BF);color:#22160A;
+  border-radius:18px;padding:34px 22px;text-align:center;overflow:hidden;
+  box-shadow:0 18px 46px rgba(0,0,0,.45);
+}
+.carta-fija::after{content:"";position:absolute;inset:8px;border:1px solid rgba(34,22,10,.15);border-radius:12px}
+.sello-fijo{position:absolute;top:8%;right:6%;width:40%;height:40%;color:#22160A;opacity:.075;
+  stroke:currentColor;fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.quien-fijo{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.03em;
+  font-size:clamp(2rem,10vw,2.8rem);line-height:1.03;margin:0}
+.aviso-pie{color:var(--musgo);font-size:.85rem;line-height:1.55;margin-top:24px}
+.aviso-pie b{color:var(--papel);font-weight:500}
+
+/* ---------- correo ---------- */
+label{display:block;font-size:.9rem;color:var(--musgo);margin:0 0 8px}
+input[type=email],input[type=text],textarea{
+  width:100%;padding:14px 15px;font:inherit;font-size:16px;color:var(--papel);
+  background:rgba(11,38,32,.6);border:1px solid rgba(242,236,221,.2);border-radius:12px;
+}
+input::placeholder,textarea::placeholder{color:rgba(127,160,142,.75)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--vela);outline-offset:2px}
+.principal{
+  width:100%;padding:16px;border:none;border-radius:12px;cursor:pointer;
+  background:var(--vela);color:#22160A;font-family:inherit;font-size:1.05rem;font-weight:600;
+  margin-top:18px;
+}
+.secundario{
+  width:100%;padding:14px;margin-top:10px;border-radius:12px;cursor:pointer;
+  background:transparent;color:var(--musgo);border:1px solid rgba(242,236,221,.16);
+  font-family:inherit;font-size:.95rem;
+}
+.porque{
+  margin-top:22px;padding:15px 16px;border-radius:12px;
+  background:rgba(78,140,106,.12);border:1px solid rgba(78,140,106,.3);
+  font-size:.92rem;color:var(--papel);line-height:1.6;
+}
+.porque b{color:var(--vela);font-weight:600}
+
+/* ---------- cartas ---------- */
+#p-cartas{padding:0;max-width:none;overflow:hidden}
+.tope-cartas{padding:min(9vh,74px) 22px 0;text-align:center;transition:opacity .5s ease,transform .5s ease;width:100%;max-width:30rem;margin:0 auto}
+.tope-cartas.fuera{opacity:0;transform:translateY(-16px)}
+.pide{color:var(--musgo);font-size:1.1rem;margin:0;animation:respirar 3s ease-in-out infinite}
+@keyframes respirar{0%,100%{opacity:.65}50%{opacity:1}}
+.mesa{position:absolute;inset:0}
+.carta{position:absolute;left:50%;bottom:9vh;cursor:pointer;transform-origin:50% 50%;perspective:900px;
+  transition:transform .78s cubic-bezier(.22,.9,.25,1),opacity .5s ease}
+.flip{position:relative;width:100%;height:100%;border-radius:11px;transform-style:preserve-3d;
+  transition:transform .8s cubic-bezier(.3,.9,.3,1);box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.carta.abierta .flip{transform:rotateY(180deg)}
+.cara{position:absolute;inset:0;border-radius:11px;backface-visibility:hidden;overflow:hidden}
+.atras{background:repeating-linear-gradient(45deg,rgba(232,184,75,.07) 0 3px,transparent 3px 10px),
+  linear-gradient(160deg,#1E4A3C,#102A22);border:1px solid rgba(232,184,75,.42);
+  display:grid;place-items:center;color:var(--vela)}
+.atras::after{content:"";position:absolute;inset:5px;border-radius:7px;border:1px solid rgba(232,184,75,.26)}
+.fig{width:60%;height:60%;stroke:currentColor;fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9;filter:drop-shadow(0 0 7px rgba(232,184,75,.4))}
+.frente{transform:rotateY(180deg);background:linear-gradient(168deg,#F8F3E7,#E3D7BF);
+  border:1px solid rgba(34,22,10,.2);display:flex;flex-direction:column;justify-content:center;
+  align-items:center;padding:10px;color:#22160A;text-align:center}
+.frente .marca{position:absolute;top:7%;right:6%;width:44%;height:44%;color:#22160A;opacity:.075;
+  stroke:currentColor;fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.frente .rot{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#8A7A5E}
+.frente .quien{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.03em;font-size:1.5rem;line-height:1.04;margin:8px 2px 0}
+.carta.descartada{opacity:0;pointer-events:none}
+.carta.flota{animation:flotar 4.6s ease-in-out infinite}
+@keyframes flotar{0%,100%{margin-bottom:0}50%{margin-bottom:9px}}
+.cierre{position:absolute;left:0;right:0;bottom:5vh;padding:0 26px;text-align:center;opacity:0;
+  transform:translateY(14px);transition:opacity .6s ease .1s,transform .6s ease .1s;pointer-events:none}
+.cierre.on{opacity:1;transform:none;pointer-events:auto}
+.cierre .datos{font-size:1.08rem;line-height:1.7;margin:0}
+.cierre .datos b{color:var(--vela);font-weight:600}
+.cierre .principal{max-width:22rem;margin:18px auto 0}
+.chispa{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--vela);pointer-events:none;z-index:9;animation:volar 1s ease-out forwards}
+@keyframes volar{from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.15)}}
+
+/* ---------- deseos ---------- */
+.deseos{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.deseos li{display:flex;align-items:center;gap:10px;padding:13px 15px;border-radius:11px;
+  background:rgba(242,236,221,.06);border:1px solid rgba(242,236,221,.12);font-size:1rem}
+.deseos li span{flex:1;min-width:0;overflow-wrap:anywhere}
+.deseos li button{background:none;border:none;color:var(--musgo);font-size:1.3rem;line-height:1;padding:2px 6px;cursor:pointer}
+.deseos li button:hover{color:var(--brasa)}
+.fila{display:flex;gap:9px}
+.fila input{flex:1}
+.fila .mas{flex:0 0 auto;padding:0 18px;border-radius:12px;background:rgba(232,184,75,.16);
+  color:var(--vela);border:1px solid rgba(232,184,75,.45);font-size:1.4rem;cursor:pointer}
+.vacio{color:var(--musgo);font-size:.92rem;margin:16px 0 0}
+.ok{margin-top:20px;padding:15px 16px;border-radius:12px;background:rgba(78,140,106,.16);
+  border:1px solid rgba(78,140,106,.4);font-size:.95rem;line-height:1.6;display:none}
+.ok.on{display:block;animation:entra .4s ease both}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="fig-cipres" viewBox="0 0 100 100"><path d="M50 13 L34 41 H66 Z"/><path d="M50 33 L28 62 H72 Z"/><path d="M50 52 L22 82 H78 Z"/><path d="M50 82 V91"/><path d="M40 91 H60"/></symbol>
+  <symbol id="fig-estrella" viewBox="0 0 100 100"><path d="M50 14 L58.8 37.9 L84.2 38.9 L64.3 54.6 L71.2 79.1 L50 65 L28.8 79.1 L35.7 54.6 L15.8 38.9 L41.2 37.9 Z"/></symbol>
+  <symbol id="fig-farol" viewBox="0 0 100 100"><path d="M41 18 A9 9 0 0 1 59 18"/><path d="M31 25 H69"/><rect x="37" y="25" width="26" height="48" rx="4"/><path d="M40 73 V80"/><path d="M60 73 V80"/><path d="M30 80 H70"/><path d="M50 40 C44 48 44 58 50 62 C56 58 56 48 50 40 Z"/></symbol>
+  <symbol id="fig-campana" viewBox="0 0 100 100"><path d="M50 15 V22"/><path d="M33 68 C33 44 41 41 41 31 A9 9 0 0 1 59 31 C59 41 67 44 67 68"/><path d="M29 68 H71"/><circle cx="50" cy="77" r="5"/></symbol>
+  <symbol id="fig-pascua" viewBox="0 0 100 100"><ellipse cx="50" cy="27" rx="8.5" ry="18"/><ellipse cx="50" cy="27" rx="8.5" ry="18" transform="rotate(60 50 50)"/><ellipse cx="50" cy="27" rx="8.5" ry="18" transform="rotate(120 50 50)"/><ellipse cx="50" cy="27" rx="8.5" ry="18" transform="rotate(180 50 50)"/><ellipse cx="50" cy="27" rx="8.5" ry="18" transform="rotate(240 50 50)"/><ellipse cx="50" cy="27" rx="8.5" ry="18" transform="rotate(300 50 50)"/><circle cx="50" cy="50" r="4.5"/></symbol>
+  <symbol id="fig-regalo" viewBox="0 0 100 100"><rect x="26" y="46" width="48" height="34" rx="3"/><rect x="21" y="35" width="58" height="12" rx="3"/><path d="M50 35 V80"/><path d="M50 35 C41 26 32 26 32 32 C32 37 42 36 50 35 Z"/><path d="M50 35 C59 26 68 26 68 32 C68 37 58 36 50 35 Z"/></symbol>
+  <symbol id="fig-vela" viewBox="0 0 100 100"><path d="M50 21 C43 30 43 39 50 44 C57 39 57 30 50 21 Z"/><path d="M50 44 V49"/><rect x="39" y="49" width="22" height="33" rx="3"/><path d="M32 82 H68"/></symbol>
+</defs></svg>
+
+<div class="halo a"></div><div class="halo b"></div><div class="halo c"></div>
+<div class="hilo" id="hilo"></div>
+
+<!-- ============ 1. QUIÉN SOS ============ -->
+<div class="pantalla on" id="p-quien">
+  <p class="grupo">Familia Corella Murillo · 24 de diciembre</p>
+  <h1>¿Quién sos?</h1>
+  <p class="lede">Tocá tu nombre para entrar al sorteo.</p>
+  <ul class="nombres" id="lista-nombres"></ul>
+  <p class="aviso-pie">
+    Si tu nombre aparece <b>ya reclamado</b> y no fuiste vos, avisale a quien organiza:
+    puede soltarlo para que lo tomés.
+  </p>
+</div>
+
+<!-- ============ 2. CORREO ============ -->
+<div class="pantalla" id="p-correo">
+  <p class="grupo">Paso 2 de 2</p>
+  <h1 id="saludo-correo">Bien, Meylin</h1>
+  <label for="correo">Tu correo</label>
+  <input type="email" id="correo" inputmode="email" autocomplete="email"
+         placeholder="vos@ejemplo.com" enterkeyhint="go">
+  <div class="porque">
+    Sirve para dos cosas: te llega tu carta por si perdés esta página, y
+    <b>te avisamos cuando la persona que te tocó escriba lo que le gustaría.</b>
+  </div>
+  <button class="principal" id="btn-correo">Seguir</button>
+  <button class="secundario" id="btn-sin-correo">Seguir sin correo</button>
+</div>
+
+<!-- ============ 2b. VOLVER ============ -->
+<div class="pantalla" id="p-volver">
+  <p class="grupo">Tu carta ya está escogida</p>
+  <h1 id="saludo-volver">Hola de nuevo</h1>
+
+  <div id="caja-llave" hidden>
+    <p class="lede">Confirmá el correo que dejaste y te la muestro.</p>
+    <label for="llave">Tu correo</label>
+    <input type="email" id="llave" inputmode="email" autocomplete="email"
+           placeholder="vos@ejemplo.com" enterkeyhint="go">
+    <p class="lede" id="llave-error" hidden
+       style="color:var(--brasa);margin:12px 0 0;font-size:.95rem">
+      Ese no es el correo que quedó guardado con este nombre. Si alguien más tomó tu
+      nombre por error, avisale a quien organiza.
+    </p>
+    <button class="principal" id="btn-llave">Ver mi carta</button>
+  </div>
+
+  <div id="sin-llave" hidden>
+    <p class="lede">
+      No dejaste correo la primera vez, así que no puedo confirmar que seas vos.
+      Si este nombre no es tuyo, salite de aquí.
+    </p>
+    <button class="principal" id="btn-sin-llave">Sí, soy yo — ver mi carta</button>
+  </div>
+</div>
+
+<!-- ============ 3b. MI CARTA ============ -->
+<div class="pantalla" id="p-mi-carta">
+  <p class="grupo">Familia Corella Murillo · 24 de diciembre</p>
+  <h1>Le regalás a</h1>
+  <div class="carta-fija">
+    <svg class="sello-fijo" viewBox="0 0 100 100"><use href="#fig-cipres"/></svg>
+    <p class="quien-fijo" id="mi-receptor"></p>
+  </div>
+  <p class="lede" style="margin-top:22px">Se abren el <b style="color:var(--vela)">24 de
+    diciembre</b> · Tope <b style="color:var(--vela)">₡15.000</b></p>
+  <button class="principal" id="btn-deseos-2">Escribir o cambiar mi lista</button>
+</div>
+
+<!-- ============ 3. CARTAS ============ -->
+<div class="pantalla" id="p-cartas">
+  <div class="tope-cartas" id="tope">
+    <p class="grupo">Familia Corella Murillo</p>
+    <h1 id="saludo-cartas">Escogé una,<br>Meylin</h1>
+    <p class="pide">La que se te antoje. Solo una.</p>
+  </div>
+  <div class="mesa" id="mesa"></div>
+  <div class="cierre" id="cierre">
+    <p class="datos">Se abren el <b>24 de diciembre</b> · Tope <b>₡15.000</b></p>
+    <button class="principal" id="btn-deseos">Escribir mi lista</button>
+  </div>
+</div>
+
+<!-- ============ 4. LISTA DE DESEOS ============ -->
+<div class="pantalla" id="p-deseos">
+  <p class="grupo">Tu lista</p>
+  <h1>¿Qué te gustaría?</h1>
+  <p class="lede">Solo lo ve quien te va a regalar. Vos nunca vas a saber quién es.</p>
+
+  <div class="fila">
+    <input type="text" id="deseo" placeholder="Algo que te gustaría" enterkeyhint="done">
+    <button class="mas" id="btn-mas" aria-label="Agregar">+</button>
+  </div>
+  <ul class="deseos" id="lista-deseos"></ul>
+  <p class="vacio" id="vacio-deseos">Todavía no has puesto nada.</p>
+
+  <label for="nota" style="margin-top:24px">Algo más que sirva saber</label>
+  <textarea id="nota" rows="3" placeholder="Talla M. No como chocolate."></textarea>
+
+  <button class="principal" id="btn-guardar">Guardar mi lista</button>
+  <div class="ok" id="ok">
+    Guardada. Le avisamos a quien te va a regalar, sin decirle nada al resto.
+    Podés volver a cambiarla cuando querás.
+  </div>
+</div>
+
+<script>
+"use strict";
+/* Conectado a la API. El código de la edición viene en la URL: ?c=xxxxxxxx */
+const CODIGO = new URLSearchParams(location.search).get('c');
+let ED = null, ROSTER = [], yo = null, RESULTADO = null;
+
+const lento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const deseos = [];
+
+/* luces */
+for (let i = 0; i < 14; i++) {
+  const l = document.createElement('i');
+  l.style.animationDelay = (i * .21).toFixed(2) + 's';
+  $('hilo').appendChild(l);
+}
+
+function ir(id) {
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('on'));
+  $(id).classList.add('on');
+  scrollTo({ top: 0, behavior: lento ? 'auto' : 'smooth' });
+}
+
+/* ---------- carga inicial ---------- */
+const ul = $('lista-nombres');
+
+const fmtFecha = f => f
+  ? new Date(f).toLocaleDateString('es-CR', { day: 'numeric', month: 'long', timeZone: 'UTC' })
+  : '';
+const fmtTope = (t, m) => t
+  ? (m === 'CRC' ? '₡' : '$') + Number(t).toLocaleString('es-CR')
+  : '';
+
+async function cargar() {
+  if (!CODIGO) {
+    ul.innerHTML = '<li style="color:var(--musgo)">Falta el código de la edición en el link.</li>';
+    return;
+  }
+  try {
+    const r = await fetch('/api/edicion?codigo=' + encodeURIComponent(CODIGO));
+    if (!r.ok) throw new Error('no se encontró esa edición');
+    const d = await r.json();
+    ED = d.edicion; ROSTER = d.roster;
+
+    const cab = ED.grupo + (ED.fecha_intercambio ? ' · ' + fmtFecha(ED.fecha_intercambio) : '');
+    document.querySelectorAll('.grupo').forEach(e => {
+      if (e.closest('#p-volver') || e.closest('#p-deseos')) return;
+      e.textContent = cab;
+    });
+    const detalle = 'Se abren el <b>' + fmtFecha(ED.fecha_intercambio) + '</b>' +
+      (ED.tope_monto ? ' · Tope <b>' + fmtTope(ED.tope_monto, ED.moneda) + '</b>' : '');
+    document.querySelector('#cierre .datos').innerHTML = detalle;
+    document.querySelector('#p-mi-carta .lede').innerHTML = detalle;
+
+    pintarRoster();
+  } catch (e) {
+    ul.innerHTML = '<li style="color:var(--brasa)">' + e.message + '</li>';
+  }
+}
+
+function pintarRoster() {
+  ul.innerHTML = '';
+  ROSTER.forEach(p => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<span>' + p.nombre + '</span>' +
+      (p.escogio ? '<span class="marca-tomado">ya escogió</span>' : '');
+    if (p.escogio) b.classList.add('tomado');
+    b.addEventListener('click', () => elegirNombre(p));
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+}
+cargar();
+
+function elegirNombre(p) {
+  yo = p;
+  const corto = p.nombre.split(' ')[0];
+  $('saludo-correo').textContent = 'Bien, ' + corto;
+  $('saludo-cartas').innerHTML = 'Escogé una,<br>' + corto;
+
+  if (!p.escogio) return ir('p-correo');
+
+  // ya escogió antes: no vuelve a girar, se le devuelve su carta
+  $('saludo-volver').textContent = 'Hola de nuevo, ' + corto;
+  $('caja-llave').hidden = !p.tiene_correo;
+  $('sin-llave').hidden = !!p.tiene_correo;
+  $('llave-error').hidden = true;
+  ir('p-volver');
+}
+
+/* ---------- reingreso ---------- */
+async function traerCarta(correo) {
+  const q = '/api/carta?p=' + encodeURIComponent(yo.id) +
+    (correo ? '&correo=' + encodeURIComponent(correo) : '');
+  const r = await fetch(q);
+  if (r.status === 403) { $('llave-error').hidden = false; return; }
+  if (!r.ok) { $('llave-error').hidden = false; return; }
+  const d = await r.json();
+  RESULTADO = d.receptor;
+  $('mi-receptor').textContent = RESULTADO;
+  ir('p-mi-carta');
+}
+$('btn-llave').addEventListener('click', () => traerCarta($('llave').value.trim()));
+$('llave').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-llave').click(); });
+$('btn-sin-llave').addEventListener('click', () => traerCarta(''));
+$('btn-deseos-2').addEventListener('click', () => ir('p-deseos'));
+
+/* ---------- 2. correo y reclamo ---------- */
+async function reclamar(email) {
+  const btn = $('btn-correo'), btn2 = $('btn-sin-correo');
+  btn.disabled = btn2.disabled = true;
+  btn.textContent = 'Un momento…';
+  try {
+    const r = await fetch('/api/reclamar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo: CODIGO, participacionId: yo.id, email: email || null }),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      if (d.error === 'nombre_ya_tomado') {
+        alert('Alguien acabó de tomar ese nombre. Volvé a la lista.');
+        await cargar(); ir('p-quien');
+      } else {
+        alert('No se pudo: ' + d.error);
+      }
+      return;
+    }
+    RESULTADO = d.receptor;
+    ir('p-cartas'); repartir();
+  } catch (e) {
+    alert('Falló la conexión. Intentá de nuevo.');
+  } finally {
+    btn.disabled = btn2.disabled = false;
+    btn.textContent = 'Seguir';
+  }
+}
+$('btn-correo').addEventListener('click', () => {
+  const v = $('correo').value.trim();
+  if (v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return $('correo').focus();
+  reclamar(v);
+});
+$('correo').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-correo').click(); });
+$('btn-sin-correo').addEventListener('click', () => reclamar(''));
+
+/* ---------- 3. cartas ---------- */
+const FIGURAS = ['fig-cipres','fig-farol','fig-campana','fig-estrella','fig-pascua','fig-vela','fig-regalo'];
+const N = 7;
+let cartas = [], repartido = false;
+
+function repartir() {
+  if (repartido) return;
+  repartido = true;
+
+  const vw = Math.min(innerWidth, 460);
+  const ancho = Math.min(112, vw * .275);
+  const alto = ancho * 1.42;
+  const R = Math.min(300, vw * .82);
+  const mesa = $('mesa');
+
+  for (let i = 0; i < N; i++) {
+    const t = (i - (N - 1) / 2) * 8.5;
+    const rad = t * Math.PI / 180;
+    const tx = Math.sin(rad) * R;
+    const ty = (1 - Math.cos(rad)) * R;
+    const fig = FIGURAS[i % FIGURAS.length];
+
+    const c = document.createElement('div');
+    c.className = 'carta flota';
+    Object.assign(c.style, {
+      width: ancho + 'px', height: alto + 'px',
+      marginLeft: (-ancho / 2) + 'px', zIndex: 10 + i,
+      animationDelay: (i * .35).toFixed(2) + 's',
+    });
+    c.dataset.base = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) rotate(${t.toFixed(1)}deg)`;
+    c.style.transform = c.dataset.base + ' translateY(120vh)';
+    c.tabIndex = 0; c.setAttribute('role', 'button');
+    c.setAttribute('aria-label', 'Carta ' + (i + 1));
+    c.innerHTML =
+      '<div class="flip">' +
+        '<div class="cara atras"><svg class="fig" viewBox="0 0 100 100"><use href="#' + fig + '"/></svg></div>' +
+        '<div class="cara frente">' +
+          '<svg class="marca" viewBox="0 0 100 100"><use href="#' + fig + '"/></svg>' +
+          '<p class="rot">Le regalás a</p><p class="quien"></p>' +
+        '</div>' +
+      '</div>';
+    c.addEventListener('click', () => escoger(c, ancho, vw));
+    c.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escoger(c, ancho, vw); }
+    });
+    mesa.appendChild(c);
+    cartas.push(c);
+  }
+
+  requestAnimationFrame(() => cartas.forEach((c, i) =>
+    setTimeout(() => { c.style.transform = c.dataset.base; }, lento ? 0 : 90 + i * 85)));
+}
+
+let listo = false;
+function escoger(c, ancho, vw) {
+  if (listo) return;
+  listo = true;
+
+  $('tope').classList.add('fuera');
+  cartas.forEach(o => { if (o !== c) { o.classList.remove('flota'); o.classList.add('descartada'); } });
+  c.classList.remove('flota');
+  c.style.zIndex = 40;
+
+  const nombre = c.querySelector('.quien');
+  nombre.textContent = RESULTADO;
+  const palabra = RESULTADO.split(' ').reduce((a, b) => a.length > b.length ? a : b).length;
+  nombre.style.fontSize = (palabra <= 6 ? 1.6 : palabra <= 8 ? 1.32 : palabra <= 11 ? 1.06 : .88) + 'rem';
+
+  const r = c.getBoundingClientRect();
+  const dx = innerWidth / 2 - (r.left + r.width / 2);
+  const dy = innerHeight * .40 - (r.top + r.height / 2);
+  const escala = Math.min(2.05, (vw * .64) / ancho);
+
+  requestAnimationFrame(() => {
+    c.style.transform = `translate(${dx}px, ${dy}px) rotate(0deg) scale(${escala})`;
+  });
+
+  setTimeout(() => {
+    c.classList.add('abierta');
+    if (navigator.vibrate) navigator.vibrate([12, 55, 22]);
+    setTimeout(() => {
+      chispas(innerWidth / 2, innerHeight * .40);
+      $('cierre').classList.add('on');
+    }, lento ? 0 : 640);
+  }, lento ? 0 : 800);
+}
+
+function chispas(x, y) {
+  if (lento) return;
+  for (let i = 0; i < 20; i++) {
+    const s = document.createElement('span');
+    s.className = 'chispa';
+    const a = Math.random() * Math.PI * 2, d = 100 + Math.random() * 170;
+    s.style.left = x + 'px'; s.style.top = y + 'px';
+    s.style.setProperty('--dx', (Math.cos(a) * d).toFixed(0) + 'px');
+    s.style.setProperty('--dy', (Math.sin(a) * d).toFixed(0) + 'px');
+    s.style.animationDelay = (Math.random() * .25).toFixed(2) + 's';
+    if (i % 3 === 0) s.style.background = '#F2ECDD';
+    if (i % 5 === 0) s.style.background = '#C0533A';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1500);
+  }
+}
+
+$('btn-deseos').addEventListener('click', () => ir('p-deseos'));
+
+/* ---------- 4. deseos ---------- */
+function agregar() {
+  const v = $('deseo').value.trim();
+  if (!v) return $('deseo').focus();
+  deseos.push(v);
+  $('deseo').value = '';
+  $('deseo').focus();
+  pintarDeseos();
+}
+$('btn-mas').addEventListener('click', agregar);
+$('deseo').addEventListener('keydown', e => { if (e.key === 'Enter') agregar(); });
+
+function pintarDeseos() {
+  const l = $('lista-deseos');
+  l.innerHTML = '';
+  deseos.forEach((d, i) => {
+    const li = document.createElement('li');
+    const s = document.createElement('span');
+    s.textContent = d;
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = '×';
+    b.setAttribute('aria-label', 'Quitar ' + d);
+    b.addEventListener('click', () => { deseos.splice(i, 1); pintarDeseos(); });
+    li.append(s, b);
+    l.appendChild(li);
+  });
+  $('vacio-deseos').hidden = deseos.length > 0;
+  $('ok').classList.remove('on');
+}
+
+$('btn-guardar').addEventListener('click', async () => {
+  const btn = $('btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const r = await fetch('/api/deseos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p: yo.id, deseos, nota: $('nota').value.trim() }),
+    });
+    if (!r.ok) throw new Error();
+    $('ok').classList.add('on');
+    $('ok').scrollIntoView({ behavior: lento ? 'auto' : 'smooth', block: 'nearest' });
+  } catch (e) {
+    alert('No se pudo guardar. Intentá de nuevo.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar mi lista';
+  }
+});
+</script>
+</body>
+</html>

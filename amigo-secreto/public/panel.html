@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel · Amigo secreto</title>
+<meta name="theme-color" content="#0B2620">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --noche:#0B2620; --pino:#16382F; --musgo:#7FA08E;
+  --papel:#F2ECDD; --vela:#E8B84B; --brasa:#C0533A; --hoja:#4E8C6A;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--noche);color:var(--papel);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+  padding:26px 16px 70px;-webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:34rem;margin:0 auto}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--vela);margin:0 0 6px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:2.1rem;letter-spacing:-.02em;
+  line-height:1.05;margin:0 0 20px}
+
+/* grupos en paralelo */
+.grupos{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:22px;
+  scrollbar-width:none}
+.grupos::-webkit-scrollbar{display:none}
+.grupos button{flex:0 0 auto;padding:10px 15px;border-radius:999px;cursor:pointer;
+  font:inherit;font-size:.92rem;color:var(--musgo);white-space:nowrap;
+  background:transparent;border:1px solid rgba(242,236,221,.16)}
+.grupos button.sel{background:var(--vela);color:#22160A;border-color:var(--vela);font-weight:600}
+
+section{background:var(--pino);border:1px solid rgba(242,236,221,.1);
+  border-radius:14px;padding:18px;margin-bottom:14px}
+.paso{display:flex;align-items:baseline;gap:10px;margin-bottom:15px}
+.paso b{font-family:"IBM Plex Mono",monospace;color:var(--vela);font-size:.78rem;font-weight:500}
+.paso h2{font-size:1.02rem;font-weight:600;margin:0}
+
+label{display:block;font-size:.82rem;color:var(--musgo);margin:14px 0 6px}
+label:first-of-type{margin-top:0}
+input,select,textarea{width:100%;padding:12px 13px;font:inherit;font-size:16px;color:var(--papel);
+  background:rgba(11,38,32,.65);border:1px solid rgba(242,236,221,.18);border-radius:10px}
+textarea{font-family:"IBM Plex Mono",monospace;font-size:14px;line-height:1.7}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{
+  outline:2px solid var(--vela);outline-offset:2px}
+.dos{display:flex;gap:10px}
+.dos>*{flex:1;min-width:0}
+button{font:inherit;cursor:pointer;border-radius:10px}
+.principal{width:100%;padding:14px;border:none;background:var(--vela);color:#22160A;
+  font-weight:600;font-size:1rem;margin-top:16px}
+.principal:disabled{opacity:.4;cursor:not-allowed}
+.chico{padding:9px 13px;font-size:.86rem;background:rgba(242,236,221,.08);
+  color:var(--papel);border:1px solid rgba(242,236,221,.18)}
+
+/* resultados de importación */
+.resuelto{list-style:none;margin:15px 0 0;padding:0}
+.resuelto li{padding:10px 0;border-top:1px solid rgba(242,236,221,.09);font-size:.95rem;
+  display:flex;align-items:baseline;gap:9px}
+.resuelto .n{flex:1;min-width:0}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 7px;border-radius:5px;flex:0 0 auto}
+.tag.union{background:rgba(78,140,106,.22);color:#9FD9B6;border:1px solid rgba(78,140,106,.4)}
+.tag.nueva{background:rgba(232,184,75,.16);color:var(--vela);border:1px solid rgba(232,184,75,.4)}
+.sub{display:block;color:var(--musgo);font-size:.78rem;margin-top:2px}
+
+/* exclusiones */
+.pares{list-style:none;margin:14px 0 0;padding:0}
+.pares li{display:flex;align-items:center;gap:8px;padding:9px 0;
+  border-top:1px solid rgba(242,236,221,.09);font-size:.95rem}
+.pares .n{flex:1}
+.pares .fl{color:var(--brasa);font-family:"IBM Plex Mono",monospace;padding:0 5px}
+.x{background:none;border:none;color:var(--musgo);font-size:1.25rem;line-height:1;padding:2px 7px;cursor:pointer}
+.x:hover{color:var(--brasa)}
+
+/* informe del sorteo */
+.informe{margin-top:16px;border-radius:11px;padding:15px;font-size:.93rem;line-height:1.65;display:none}
+.informe.on{display:block}
+.informe.bien{background:rgba(78,140,106,.14);border:1px solid rgba(78,140,106,.38)}
+.informe.ceden{background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.4)}
+.informe b{color:var(--vela)}
+.metrica{font-family:"IBM Plex Mono",monospace;font-size:1.5rem;color:var(--vela);
+  display:block;margin:4px 0 2px}
+
+/* link */
+.link{margin-top:16px;padding:13px;border-radius:10px;background:rgba(11,38,32,.7);
+  border:1px dashed rgba(232,184,75,.45);font-family:"IBM Plex Mono",monospace;
+  font-size:.8rem;color:var(--vela);overflow-wrap:anywhere}
+
+/* bitácora */
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.9rem}
+th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--musgo);font-weight:500;padding:0 0 9px}
+td{padding:11px 0;border-top:1px solid rgba(242,236,221,.09);vertical-align:middle}
+td.nom{font-weight:500}
+td .correo{display:block;color:var(--musgo);font-size:.76rem;font-family:"IBM Plex Mono",monospace;overflow-wrap:anywhere}
+.estado{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
+.estado.ok{color:var(--hoja)}
+.estado.esp{color:var(--musgo)}
+.estado.ale{color:var(--brasa)}
+td.acc{text-align:right;width:1%;white-space:nowrap}
+.nota{color:var(--musgo);font-size:.8rem;margin-top:14px;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Panel</p>
+  <h1>Amigo secreto</h1>
+
+  <div class="grupos" id="grupos"></div>
+
+  <!-- 01 edición -->
+  <section>
+    <div class="paso"><b>01</b><h2>La edición</h2></div>
+    <label for="ed-nombre">Nombre</label>
+    <input id="ed-nombre" value="Navidad 2026">
+    <div class="dos">
+      <div>
+        <label for="ed-fecha">Intercambio</label>
+        <input type="date" id="ed-fecha" value="2026-12-24">
+      </div>
+      <div>
+        <label for="ed-tope">Tope</label>
+        <input id="ed-tope" value="₡15.000">
+      </div>
+    </div>
+    <div class="dos">
+      <div>
+        <label for="ed-memoria">No repetir</label>
+        <select id="ed-memoria">
+          <option value="0">Sin memoria</option>
+          <option value="1">El año pasado</option>
+          <option value="2" selected>Los 2 anteriores</option>
+          <option value="3">Los 3 anteriores</option>
+        </select>
+      </div>
+      <div>
+        <label for="ed-cadencia">Avisos de listas</label>
+        <select id="ed-cadencia">
+          <option value="inmediata">Al momento</option>
+          <option value="diaria" selected>Un correo al día</option>
+          <option value="semanal">Un correo por semana</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 gente -->
+  <section>
+    <div class="paso"><b>02</b><h2>La gente</h2></div>
+    <label for="pegado">Un nombre por línea</label>
+    <textarea id="pegado" rows="7"></textarea>
+    <button class="chico" id="btn-leer" style="margin-top:12px">Leer la lista</button>
+    <ul class="resuelto" id="resuelto"></ul>
+  </section>
+
+  <!-- 03 exclusiones -->
+  <section>
+    <div class="paso"><b>03</b><h2>Quiénes no se pueden tocar</h2></div>
+    <div class="dos">
+      <select id="sel-a"></select>
+      <select id="sel-b"></select>
+    </div>
+    <button class="chico" id="btn-par" style="margin-top:12px">Excluir la pareja</button>
+    <ul class="pares" id="pares"></ul>
+  </section>
+
+  <!-- 04 sorteo -->
+  <section>
+    <div class="paso"><b>04</b><h2>Sortear y abrir</h2></div>
+    <p class="nota" style="margin-top:0">
+      El sorteo se resuelve completo ahora. Si las reglas no se pueden cumplir del todo,
+      se suelta lo mínimo y te digo qué cedió.
+    </p>
+    <button class="principal" id="btn-sortear">Sortear y abrir la edición</button>
+    <div class="informe" id="informe"></div>
+    <div class="link" id="link" hidden></div>
+    <button class="chico" id="btn-copiar" hidden style="margin-top:12px;width:100%">Copiar el link para el grupo</button>
+  </section>
+
+  <!-- 05 bitácora -->
+  <section>
+    <div class="paso"><b>05</b><h2>Quién ya entró</h2></div>
+    <table>
+      <thead><tr><th>Persona</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="bitacora"></tbody>
+    </table>
+    <p class="nota">
+      Si alguien dice que no fue quien reclamó su nombre, soltalo: se borra su carta
+      y vuelve a la lista para que lo tome la persona correcta.
+    </p>
+  </section>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ---------- historial real del grupo (de las capturas) ---------- */
+const H = {
+  "Familia Corella Murillo": [
+    { año: 2025, asig: { Argenis:"Ivannia", Brittany:"Siviany", Damaris:"Thiago", Hazel:"Jonathan",
+        Ivannia:"Hazel", Jonathan:"Oscar", Meylin:"Damaris", Oscar:"Argenis", Siviany:"Meylin", Thiago:"Brittany" } },
+    { año: 2023, asig: { Argenis:"Raquel", Brittany:"Ivannia", Damaris:"Siviany", Hazel:"Oscar",
+        Ivannia:"Hazel", Jonathan:"Argenis", Meylin:"Thiago", Oscar:"Brittany", Raquel:"Jonathan",
+        Reychel:"Damaris", Siviany:"Meylin", Thiago:"Reychel" } },
+    { año: 2022, asig: { Alejandro:"Meylin", Argenis:"Jonathan", Brittany:"Thiago", Damaris:"Brittany",
+        Guiselle:"Argenis", Hazel:"Damaris", Ivannia:"Oscar", Jonathan:"Hazel", Joseline:"Alejandro",
+        Meylin:"Siviany", Oscar:"Joseline", Raquel:"Ivannia", Siviany:"Guiselle", Thiago:"Raquel" } },
+  ],
+  "Ncubo": [],
+};
+/* nombres canónicos ya conocidos del grupo */
+const CANON = {
+  "Familia Corella Murillo": ["Meylin Corella","Oscar Corella","Damaris Murillo","Siviany Corella",
+    "Jonathan Ramírez","Hazel Corella","Ivannia Corella","Thiago Ramírez","Raquel","Argenis Corella",
+    "Brittany Corella","Reychel","Alejandro Corella","Guiselle Corella","Joseline Arias"],
+  "Ncubo": [],
+};
+const PEGADO_INICIAL = "Argenis\nBrittany\nDamaris\nHazel\nIvannia\nJonathan\nMeylin\nOscar\nSiviany\nThiago";
+
+let grupo = "Familia Corella Murillo";
+let personas = [];   // {mostrar, pila, apellidos, unido}
+let vetos = [];      // [i,j]
+let sorteo = null;
+
+/* ---------- grupos en paralelo ---------- */
+["Familia Corella Murillo", "Ncubo", "+ Nuevo grupo"].forEach(g => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = g;
+  if (g === grupo) b.classList.add('sel');
+  b.addEventListener('click', () => {
+    if (g.startsWith('+')) return;
+    grupo = g;
+    document.querySelectorAll('.grupos button').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    personas = []; vetos = []; sorteo = null;
+    $('pegado').value = g === "Familia Corella Murillo" ? PEGADO_INICIAL : "";
+    $('resuelto').innerHTML = ''; pintarSelects(); pintarPares(); pintarBitacora();
+    $('informe').classList.remove('on'); $('link').hidden = true; $('btn-copiar').hidden = true;
+  });
+  $('grupos').appendChild(b);
+});
+$('pegado').value = PEGADO_INICIAL;
+
+/* ---------- identidad ---------- */
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+function resolver(linea) {
+  const partes = linea.trim().split(/\s+/);
+  const pila = norm(partes[0]);
+  const apes = partes.slice(1).map(norm);
+
+  const cands = CANON[grupo].filter(c => {
+    const p = c.split(/\s+/);
+    if (norm(p[0]) !== pila) return false;              // el pila debe ser IDÉNTICO
+    const suyos = p.slice(1).map(norm);                  // apellidos por posición
+    const n = Math.min(apes.length, suyos.length);
+    for (let i = 0; i < n; i++) if (apes[i] !== suyos[i]) return false;
+    return true;
+  });
+
+  if (cands.length === 1) {
+    const c = cands[0];
+    return { mostrar: c, pila, apellidos: apes, unido: c !== linea.trim() ? c : null };
+  }
+  if (cands.length > 1) return { mostrar: linea.trim(), pila, apellidos: apes, ambiguo: cands };
+  return { mostrar: linea.trim(), pila, apellidos: apes, unido: null, nueva: true };
+}
+
+$('btn-leer').addEventListener('click', () => {
+  const lineas = $('pegado').value.split('\n').map(s => s.trim()).filter(Boolean);
+  personas = lineas.map(resolver);
+  vetos = []; sorteo = null;
+  const ul = $('resuelto'); ul.innerHTML = '';
+  personas.forEach(p => {
+    const li = document.createElement('li');
+    let tag = '', sub = '';
+    if (p.ambiguo) { tag = '<span class="tag nueva">ambiguo</span>';
+      sub = '<span class="sub">Hay ' + p.ambiguo.length + ' con ese nombre. Falta el apellido.</span>'; }
+    else if (p.unido) { tag = '<span class="tag union">se une</span>';
+      sub = '<span class="sub">Ya estaba en el grupo como ' + p.unido + '</span>'; }
+    else if (p.nueva) { tag = '<span class="tag nueva">nueva</span>'; }
+    li.innerHTML = '<span class="n">' + p.mostrar + sub + '</span>' + tag;
+    ul.appendChild(li);
+  });
+  pintarSelects(); pintarPares(); pintarBitacora();
+});
+
+function pintarSelects() {
+  ['sel-a','sel-b'].forEach(id => {
+    $(id).innerHTML = personas.map((p, i) => '<option value="' + i + '">' + p.mostrar + '</option>').join('');
+  });
+}
+$('btn-par').addEventListener('click', () => {
+  const a = +$('sel-a').value, b = +$('sel-b').value;
+  if (isNaN(a) || isNaN(b) || a === b) return;
+  if (vetos.some(v => (v[0]===a&&v[1]===b)||(v[0]===b&&v[1]===a))) return;
+  vetos.push([a, b]); pintarPares();
+});
+function pintarPares() {
+  const ul = $('pares'); ul.innerHTML = '';
+  vetos.forEach((v, k) => {
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="n">' + personas[v[0]].mostrar +
+      '<span class="fl">⇄</span>' + personas[v[1]].mostrar + '</span>';
+    const b = document.createElement('button');
+    b.className = 'x'; b.type = 'button'; b.textContent = '×';
+    b.addEventListener('click', () => { vetos.splice(k, 1); pintarPares(); });
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+/* El sorteo lo hace el servidor. Acá solo queda una estimación de holgura
+   para avisar antes de apretar el botón, no para decidir nada. */
+
+function clavePila(p) { return p.mostrar.split(/\s+/)[0]; }
+
+/* holgura estimada por muestreo: barato y honesto */
+function holgura() {
+  const n = personas.length, ids = personas.map((_,i)=>i);
+  const memoria = +$('ed-memoria').value;
+  const hist = H[grupo] || [], pila = personas.map(clavePila);
+  const prohib = new Set();
+  for (let k = 0; k < Math.min(memoria, hist.length); k++)
+    for (const [d, r] of Object.entries(hist[k].asig)) {
+      const i = pila.indexOf(d), j = pila.indexOf(r);
+      if (i >= 0 && j >= 0) prohib.add(i+'|'+j);
+    }
+  const excl = new Set();
+  vetos.forEach(([a,b]) => { excl.add(a+'|'+b); excl.add(b+'|'+a); });
+
+  let ok = 0, N = 4000;
+  for (let t = 0; t < N; t++) {
+    const p = [...ids];
+    for (let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]];}
+    let vale = true;
+    for (let i = 0; i < n && vale; i++) {
+      if (p[i] === i) vale = false;
+      else if (excl.has(i+'|'+p[i]) || prohib.has(i+'|'+p[i])) vale = false;
+      else if (p[p[i]] === i) vale = false;
+    }
+    if (vale) ok++;
+  }
+  return ok / N;
+}
+
+let CODIGO_ACTUAL = null;
+
+$('btn-sortear').addEventListener('click', async () => {
+  if (personas.length < 3) return;
+  const btn = $('btn-sortear'), inf = $('informe');
+  btn.disabled = true; btn.textContent = 'Sorteando…';
+  inf.classList.remove('on');
+
+  const cuerpo = {
+    grupo: grupo,
+    nombre: $('ed-nombre').value.trim(),
+    fecha: $('ed-fecha').value || null,
+    tope: $('ed-tope').value.replace(/\D/g, '') || null,
+    moneda: 'CRC',
+    memoria: +$('ed-memoria').value,
+    cadencia: $('ed-cadencia').value,
+    personas: personas.map(p => p.mostrar),
+    exclusiones: vetos.map(([a, b]) => [personas[a].mostrar, personas[b].mostrar]),
+  };
+
+  try {
+    const r = await fetch('/api/edicion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cuerpo),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      inf.className = 'informe ceden on';
+      inf.textContent = 'No se pudo: ' + d.error;
+      return;
+    }
+
+    CODIGO_ACTUAL = d.codigo;
+    const pct = (holgura() * 100);
+
+    if (d.concesiones.length === 0) {
+      inf.className = 'informe bien on';
+      inf.innerHTML = 'Sorteo hecho y guardado, sin ceder nada.' +
+        '<span class="metrica">' + pct.toFixed(1) + '%</span>' +
+        'de las combinaciones sobrevivían a todas las reglas (estimado).';
+    } else {
+      inf.className = 'informe ceden on';
+      inf.innerHTML = 'Sorteo guardado, con <b>' + d.concesiones.length +
+        (d.concesiones.length === 1 ? ' repetición' : ' repeticiones') +
+        '</b> que no se pudieron evitar:<br>' +
+        d.concesiones.map(c => '· ' + c.dador + ' → ' + c.receptor +
+          (c.hace ? ' (igual que hace ' + c.hace + ')' : '')).join('<br>') +
+        '<br><br>Se soltó lo más viejo primero.';
+    }
+
+    const url = location.origin + '/participante.html?c=' + d.codigo;
+    $('link').textContent = url; $('link').hidden = false;
+    $('btn-copiar').hidden = false;
+    $('btn-copiar').textContent = 'Copiar el link para el grupo';
+    $('btn-copiar').onclick = () => {
+      navigator.clipboard?.writeText(url);
+      $('btn-copiar').textContent = 'Copiado';
+    };
+    await cargarEstado();
+  } catch (e) {
+    inf.className = 'informe ceden on';
+    inf.textContent = 'El sorteo pudo haberse guardado, pero el panel falló al mostrarlo: '
+      + e.message + ' — revisá la edición antes de volver a sortear.';
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sortear y abrir la edición';
+  }
+});
+
+/* ---------- bitácora, contra la base ---------- */
+async function cargarEstado() {
+  if (!CODIGO_ACTUAL) return;
+  try {
+    const r = await fetch('/api/edicion?codigo=' + encodeURIComponent(CODIGO_ACTUAL));
+    if (!r.ok) return;
+    const d = await r.json();
+    pintarEstado(d.roster);
+  } catch (e) {}
+}
+
+function pintarEstado(roster) {
+  const tb = $('bitacora'); tb.innerHTML = '';
+  roster.forEach(p => {
+    const tr = document.createElement('tr');
+    const est = p.escogio
+      ? '<span class="estado ok">ya escogió</span>'
+      : '<span class="estado esp">sin entrar</span>';
+    tr.innerHTML = '<td class="nom">' + p.nombre +
+      (p.tiene_correo ? '<span class="correo">dejó correo</span>' : '') +
+      '</td><td>' + est + '</td><td class="acc"></td>';
+    if (p.escogio) {
+      const b = document.createElement('button');
+      b.className = 'chico'; b.type = 'button'; b.textContent = 'Soltar';
+      b.addEventListener('click', async () => {
+        if (!confirm('¿Soltar el nombre de ' + p.nombre + '? Se borra su carta y vuelve a la lista.')) return;
+        b.disabled = true; b.textContent = '…';
+        await fetch('/api/soltar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participacionId: p.id }),
+        });
+        await cargarEstado();
+      });
+      tr.querySelector('.acc').appendChild(b);
+    }
+    tb.appendChild(tr);
+  });
+}
+
+function pintarBitacora() {
+  $('bitacora').innerHTML =
+    '<tr><td colspan="3" class="nota" style="border:none">Sorteá primero.</td></tr>';
+}
+pintarBitacora();
+</script>
+</body>
+</html>

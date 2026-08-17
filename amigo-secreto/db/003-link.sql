@@ -1,0 +1,1 @@
+-- pegá aquí parche-002-link-generico.sql

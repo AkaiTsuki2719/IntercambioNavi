@@ -1,0 +1,1 @@
+-- pegá aquí parche-001-correo-participante.sql
