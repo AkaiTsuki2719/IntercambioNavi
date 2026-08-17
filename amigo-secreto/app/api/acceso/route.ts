@@ -1,6 +1,6 @@
 import { pool } from "@/lib/db";
 import { nuevoCodigo, hashCodigo, abrirSesion, sesion, cerrarSesion } from "@/lib/sesion";
-import { Resend } from "resend";
+import { enviar, escapar } from "@/lib/correo";
 
 const MINUTOS = 15;
 const MAX_INTENTOS = 5;
@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  POST — pedir código, o verificarlo, o salir                        */
+/*  POST                                                               */
 /* ------------------------------------------------------------------ */
 export async function POST(req: Request) {
   const b = await req.json();
@@ -34,26 +34,28 @@ export async function POST(req: Request) {
   /* ---------- pedir ---------- */
   if (b.accion === "pedir") {
     const codigo = nuevoCodigo();
+
+    // Se manda ANTES de guardar: si el correo no sale, no dejamos un
+    // código huérfano en la base ni le decimos al usuario que llegó.
+    try {
+      await enviar({
+        para: email,
+        asunto: `${codigo} es tu código`,
+        html:
+          `<p>Tu código para entrar es:</p>
+           <p style="font-size:30px;letter-spacing:.3em;font-weight:700">${codigo}</p>
+           <p>Vence en ${MINUTOS} minutos. Si no lo pediste, ignorá este mensaje.</p>`,
+      });
+    } catch (e: any) {
+      return Response.json(
+        { error: "no_se_pudo_enviar", detalle: e.message }, { status: 502 });
+    }
+
     await pool.query(
       `insert into codigo_acceso (email, hash, vence)
        values ($1, $2, now() + ($3 || ' minutes')::interval)`,
       [email, hashCodigo(codigo, email), String(MINUTOS)],
     );
-
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: process.env.CORREO_DESDE!,
-        to: email,
-        subject: `${codigo} es tu código`,
-        html: `<p>Tu código para entrar es:</p>
-               <p style="font-size:30px;letter-spacing:.3em;font-weight:700">${codigo}</p>
-               <p>Vence en ${MINUTOS} minutos. Si no lo pediste, ignorá este mensaje.</p>`,
-      });
-    } catch (e: any) {
-      // el código quedó guardado; si el correo falla, se puede reintentar
-      return Response.json({ error: "no_se_pudo_enviar", detalle: e.message }, { status: 502 });
-    }
 
     return Response.json({ ok: true, minutos: MINUTOS });
   }
@@ -83,7 +85,6 @@ export async function POST(req: Request) {
 
     await pool.query(`update codigo_acceso set usado_en = now() where id = $1`, [fila.id]);
 
-    // el usuario se crea la primera vez que entra
     const u = await pool.query(
       `insert into app_user (email, nombre, ultimo_ingreso)
        values ($1, $2, now())
